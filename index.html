@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Даты ВОВ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: тетрадь в клетку — одна колонка, сверху вкладки, маркеры по годам как в конспекте */
+:root{
+  --bg:#f7f8fb; --grid:#e3e7f0; --paper:#ffffff; --ink:#1d2340; --muted:#5d6584; --line:#d5dae7;
+  --accent:#2f3fb8; --ok:#1f8a4c; --bad:#c23a2b;
+  --y0:#d9dbe3; --y41:#ffc9a8; --y42:#a9e3ef; --y43:#ffe867; --y44:#bfe8b4; --y45:#dcc3fb; --yh:#f5d0c4;
+  --f-disp:"Unbounded",system-ui,sans-serif; --f-body:"Golos Text",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13162a; --grid:#1d2140; --paper:#1a1e36; --ink:#e8eaf6; --muted:#9aa1c4; --line:#2e3358;
+  --accent:#8f9cff; --ok:#5fd18f; --bad:#ff7d6e;
+  --y0:#3a3e55; --y41:#7a4428; --y42:#1f5966; --y43:#6b5d10; --y44:#2f5a29; --y45:#4f3577; --yh:#6a3a30; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13162a; --grid:#1d2140; --paper:#1a1e36; --ink:#e8eaf6; --muted:#9aa1c4; --line:#2e3358;
+  --accent:#8f9cff; --ok:#5fd18f; --bad:#ff7d6e;
+  --y0:#3a3e55; --y41:#7a4428; --y42:#1f5966; --y43:#6b5d10; --y44:#2f5a29; --y45:#4f3577; --yh:#6a3a30; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
+.wrap{max-width:820px;margin:0 auto;padding-inline:16px;padding-block:20px 60px}
+h1{font-family:var(--f-disp);font-weight:700;font-size:clamp(24px,5vw,34px);margin:0 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 18px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px}
+.tab{font:600 15px var(--f-body);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);padding:9px 14px;border-radius:999px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.tab:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 16px}
+.chip{font:500 13px var(--f-body);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 -6px 0 var(--hl,var(--y0))}
+section.year{margin-bottom:22px}
+.ytitle{display:inline-block;font-family:var(--f-disp);font-weight:700;font-size:20px;padding:2px 10px;background:var(--hl);border:2px solid var(--ink);margin:6px 0 8px}
+.row{display:grid;grid-template-columns:minmax(118px,auto) 1fr;gap:4px 14px;padding:8px 10px;background:var(--paper);border-bottom:1px solid var(--line)}
+.row:first-of-type{border-top:1px solid var(--line)}
+.d{font-family:var(--f-mono);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.d mark{background:linear-gradient(transparent 35%,var(--hl) 35%);color:inherit;padding:0 2px}
+.e{min-width:0}
+.note{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.fix{display:block;color:var(--bad);font-size:13px;margin-top:2px}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
+.tw{overflow-x:auto;background:var(--paper);border:2px solid var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{font:600 12px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:10px;border-bottom:2px solid var(--ink);position:sticky;top:0;background:var(--paper)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.y{font-family:var(--f-mono);font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.y mark{background:linear-gradient(transparent 35%,var(--hl) 35%);color:inherit;padding:0 2px}
+td.l{white-space:nowrap;color:var(--muted);font-size:14px}
+td.m{color:var(--muted);font-size:14px;min-width:180px}
+tr.sep td{background:var(--hl);font-family:var(--f-disp);font-weight:700;font-size:15px;border-bottom:2px solid var(--ink)}
+.sh{font-family:var(--f-disp);font-size:20px;margin:6px 0 8px;text-wrap:balance}
+.inp{font:700 28px var(--f-mono);width:100%;max-width:200px;padding:10px 12px;border:2px solid var(--ink);background:var(--paper);color:var(--ink)}
+.tform{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.tform .btn{flex:0 1 180px}
+.ask{font:600 15px var(--f-body);color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.mgrid{display:grid;grid-template-columns:1.6fr 1fr;gap:10px;margin-top:14px}
+.mcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+.mbtn{font:500 15px var(--f-body);text-align:left;padding:10px 12px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;transition:background .15s}
+.mbtn.y{font:700 15px var(--f-mono)}
+.mbtn.sel{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.mbtn.okm{background:var(--ok);border-color:var(--ok);color:var(--paper);cursor:default}
+.mbtn.bad{background:var(--bad);border-color:var(--bad);color:var(--paper)}
+.num{font-family:var(--f-mono);font-weight:700;margin-right:6px}
+[hidden]{display:none!important}
+.mstat{font:500 14px var(--f-body);padding:8px 12px;margin-top:10px;border:1.5px dashed var(--line);background:var(--paper)}
+.reset{font:500 13px var(--f-body);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px 0}
+.bzhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bzclock{font:700 40px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+.hint{background:var(--paper);border:1.5px dashed var(--line);padding:12px 14px;margin:0 0 16px;font-size:14px}
+.hint b{font-family:var(--f-mono)}
+/* карточки */
+.card{background:var(--paper);border:2px solid var(--ink);min-height:230px;padding:22px;display:flex;flex-direction:column;justify-content:center;gap:12px;cursor:pointer;position:relative;box-shadow:6px 6px 0 var(--hl,var(--y0))}
+.card .q{font-size:clamp(19px,3.6vw,24px);font-weight:600;text-wrap:balance}
+.card .a{font-family:var(--f-mono);font-weight:700;font-size:clamp(26px,6vw,40px);color:var(--accent)}
+.card .tag{position:absolute;top:10px;right:12px;font:500 12px var(--f-mono);color:var(--muted);letter-spacing:.05em}
+.btns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{flex:1 1 140px;font:600 16px var(--f-body);padding:13px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:var(--paper)}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:var(--paper)}
+.stat{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin:12px 0 0;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--line);margin-top:8px}.bar i{display:block;height:100%;background:var(--ok);transition:width .3s}
+/* тест */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media (max-width:520px){.opts{grid-template-columns:1fr}}
+.opt{font:700 17px var(--f-mono);padding:14px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;text-align:left}
+.opt.right{background:var(--ok);border-color:var(--ok);color:var(--paper)}
+.opt.wrong{background:var(--bad);border-color:var(--bad);color:var(--paper)}
+.done{padding:30px;text-align:center;background:var(--paper);border:2px solid var(--ink)}
+.done h2{font-family:var(--f-disp);margin:0 0 6px}
+.small{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <h1>Даты ВОВ</h1>
+  <p class="sub">Только года и числа из твоего конспекта. Учи по шпаргалке, потом гоняй карточки и тест.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t-blitz" aria-selected="false" data-v="blitz">Повтор 5 мин</button>
+    <button class="tab" role="tab" id="t-drill" aria-selected="true" data-v="drill">Зубрёжка за час</button>
+    <button class="tab" role="tab" id="t-table" aria-selected="false" data-v="table">Таблица</button>
+    <button class="tab" role="tab" id="t-list" aria-selected="false" data-v="list">Точные даты</button>
+    <button class="tab" role="tab" id="t-cards" aria-selected="false" data-v="cards">Карточки</button>
+    <button class="tab" role="tab" id="t-quiz" aria-selected="false" data-v="quiz">Тест</button>
+  </div>
+  <div class="filters" id="filters"></div>
+
+  <div id="v-blitz" hidden></div>
+  <div id="v-drill"></div>
+  <div id="v-table" hidden></div>
+  <div id="v-list" hidden></div>
+
+  <div id="v-cards" hidden>
+    <div class="filters modes"></div>
+    <div id="cardbox"></div>
+    <div class="stat" id="cstat"></div>
+    <div class="bar"><i id="cbar" style="width:0"></i></div>
+    <p class="small">Нажми на карточку или пробел — увидишь ответ. «Не знаю» вернёт карточку в конец стопки. Клавиши: 1 — знаю, 2 — не знаю.</p>
+  </div>
+
+  <div id="v-quiz" hidden>
+    <div class="filters modes"></div>
+    <div id="quizbox"></div>
+    <div class="stat" id="qstat"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener("error",ev=>{const d=document.getElementById("v-drill");if(d)d.insertAdjacentHTML("afterbegin",`<div class="hint" style="color:var(--bad)">Ошибка на странице: ${String(ev.message).replace(/</g,"&lt;")}. Нажми «Сбросить прогресс» или обнови страницу.</div><button class="reset" onclick="try{localStorage.clear()}catch(e){};location.reload()">Сбросить всё и перезагрузить</button>`)});
+// k — группа, d — дата, e — событие, n — пометка, f — расхождение с учебником
+const G={
+  "0":{t:"Ключевые",hl:"--y0"},
+  "41":{t:"1941",hl:"--y41"},"42":{t:"1942",hl:"--y42"},"43":{t:"1943",hl:"--y43"},
+  "44":{t:"1944",hl:"--y44"},"45":{t:"1945",hl:"--y45"},"h":{t:"Люди и конференции",hl:"--yh"}
+};
+const D=[
+["0","14.12.1939","Исключение СССР из Лиги Наций (после нападения на Финляндию)"],
+["0","1.09.1939","Нападение Германии на Польшу — начало Второй мировой войны"],
+["0","22.06.1941","Нападение Германии на СССР — начало ВОВ"],
+["0","9.05.1945","Капитуляция Германии — конец ВОВ"],
+["0","08–09.1945","Война СССР с Японией"],
+["0","2.09.1945","Капитуляция Японии — конец Второй мировой войны","","В конспекте 3.09 — это День победы над Японией в СССР; акт подписан 2.09"],
+["0","22.06.41 – 18.11.42","1-й период ВОВ: начальный (оборонительный)"],
+["0","19.11.42 – конец 1943","2-й период ВОВ: коренной перелом"],
+["0","1944 – 1945","3-й период ВОВ: освобождение СССР и стран Европы"],
+
+["41","23.06.1941","Ставка Главного командования (председатель — Тимошенко)"],
+["41","24.06.1941","Совет по эвакуации (председатель — Каганович)"],
+["41","30.06.1941","Создан ГКО — Гос. комитет обороны (Сталин)"],
+["41","10.07.1941","Ставка Верховного командования (Сталин)"],
+["41","8.08.1941","Ставка Верховного Главнокомандования (Сталин)","","В конспекте похоже на 8.09 — по учебнику 8 августа"],
+["41","22.06 – 20.07.1941","Оборона Брестской крепости (Зубачёв, Фомин, Гаврилов)"],
+["41","28.06.1941","Захват Минска (Павлов, ком. Западным фронтом, — расстрелян)"],
+["41","10.07 – 10.09.1941","Смоленское сражение"],
+["41","14.07.1941","Под Оршей — первый залп «Катюш» БМ-13 (Флёров)"],
+["41","30.08 – 6.09.1941","Сражение у Ельни — первая победа РККА (Жуков)"],
+["41","июль – сентябрь 1941","Оборона Киева (Кирпонос погиб)"],
+["41","16.08.1941","Приказ № 270 (о сдаче в плен)"],
+["41","август – октябрь 1941","Оборона Одессы","","В конспекте «август–сентябрь»; Одессу оставили 16 октября"],
+["41","30.10.41 – 4.07.42","Оборона Севастополя (250 дней)"],
+["41","8.09.41 – 27.01.44","Блокада Ленинграда (872 дня), «Дорога жизни» по Ладоге"],
+["41","октябрь 1941","Эвакуация столицы в Куйбышев (Самару)"],
+["41","30.09.41 – 20.04.42","Битва за Москву (немецкая операция «Тайфун»)"],
+["41","7.11.1941","Парад на Красной площади","","Парад был 7 ноября; проверь, что в конспекте не 4.11"],
+["41","16.11.1941","Бой у разъезда Дубосеково (Панфилов, Клочков)"],
+["41","5.12.1941","Контрнаступление Красной армии под Москвой"],
+["41","7.12.1941","Нападение Японии на Пёрл-Харбор — начало войны на Тихом океане","","По московскому времени уже 8.12"],
+
+["42","5.01.42 – 31.03.43","Ржевская битва","","Во многих учебниках начало — 8.01.1942"],
+["42","май 1942","Харьковский котёл (окружение КА под Харьковом)"],
+["42","30.05.1942","Создан Центральный штаб партизанского движения (Пономаренко)"],
+["42","28.07.1942","Приказ № 227 «Ни шагу назад» (штрафбаты, заградотряды)"],
+["42","17.07.42 – 2.02.43","Сталинградская битва"],
+["42","25.07.42 – 9.10.43","Битва за Кавказ"],
+["42","19.11.1942","Контрнаступление под Сталинградом — операция «Уран»"],
+["42","10.01 – 2.02.1943","Операция «Кольцо» — уничтожение 6-й армии Паулюса"],
+["42","1942 – 1943","«Молодая гвардия» (Краснодон, Олег Кошевой)"],
+
+["43","январь 1943","Операция «Искра» — прорыв блокады Ленинграда (Говоров, Мерецков)"],
+["43","5.07 – 23.08.1943","Курская битва (немецкая операция «Цитадель»)","","В конспекте 21.08 — по учебнику 23.08"],
+["43","12.07.1943","Танковое сражение под Прохоровкой"],
+["43","07–08.1943","Орловская операция «Кутузов»"],
+["43","08.1943","Белгородско-Харьковская операция «Румянцев»"],
+["43","5.08.1943","Освобождение Орла и Белгорода — первый салют"],
+["43","08–10.1943","Смоленская операция «Суворов»"],
+["43","08–09.1943","Партизаны: «Рельсовая война»"],
+["43","09–10.1943","Партизаны: операция «Концерт»"],
+["43","08–12.1943","Битва за Днепр"],
+["43","6.11.1943","Освобождение Киева"],
+
+["44","01–03.1944","1-й удар: Ленинградско-Новгородская («Январский гром»)"],
+["44","27.01.1944","Полное снятие блокады Ленинграда"],
+["44","12.43 – 04.44","2-й удар: Днепровско-Карпатская (Корсунь-Шевченковская), Правобережная Украина"],
+["44","03–04.1944","3-й удар: Одесская (Малиновский)"],
+["44","04–05.1944","Крымская операция"],
+["44","9.05.1944","Освобождение Севастополя"],
+["44","06–09.1944","4-й удар: Выборгско-Петрозаводская — Финляндия вышла из войны"],
+["44","6.06.1944","Открытие второго фронта — «Оверлорд», Нормандия"],
+["44","06–08.1944","5-й удар: «Багратион» — Белоруссия (Баграмян)","","В конспекте 06–07; операция шла до 29 августа"],
+["44","07–08.1944","6-й удар: Львовско-Сандомирская — юго-восток Польши"],
+["44","08.1944","7-й удар: Ясско-Кишинёвская — Молдавия","","В конспекте 09; по учебнику 20–29 августа"],
+["44","08–10.1944","Румынская операция — Бухарест"],
+["44","09–11.1944","8-й удар: Прибалтийская — Рига, Таллин"],
+["44","09–10.1944","9-й удар: Восточно-Карпатская; Белградская — Югославия"],
+["44","10.1944","10-й удар: Петсамо-Киркенесская — Заполярье, Норвегия"],
+["44","10.44 – 02.45","Будапештская операция — Венгрия"],
+
+["45","01–02.1945","Висло-Одерская — освобождение Польши"],
+["45","01–04.1945","Восточно-Прусская — Кёнигсберг"],
+["45","03–04.1945","Венская операция — Австрия"],
+["45","04–05.1945","Берлинская операция (Зееловские высоты)"],
+["45","04–05.1945","Братиславская — Словакия"],
+["45","25.04.1945","Встреча на Эльбе советских и американских войск"],
+["45","30.04.1945","Берест, Егоров, Кантария — знамя Победы над Рейхстагом"],
+["45","05.1945","Пражская операция — Чехия"],
+["45","9.05.1945","Капитуляция Германии"],
+["45","24.06.1945","Парад Победы (командовал Рокоссовский, принимал Жуков)"],
+["45","26.06.1945","Подписан Устав ООН"],
+["45","6 и 9.08.1945","Атомные бомбардировки Хиросимы и Нагасаки"],
+["45","8.08.1945","СССР объявил войну Японии","","В конспекте 9.08 — объявили 8-го, наступление началось 9-го"],
+["45","9.08 – 2.09.1945","Маньчжурская операция (Квантунская армия)"],
+["45","20.11.45 – 1.10.46","Нюрнбергский процесс","","В конспекте 10.45–11.46 — по учебнику 20.11.1945 – 1.10.1946"],
+
+["h","1943","Тегеранская конференция (Сталин, Черчилль, Рузвельт) — второй фронт, «балканский вариант» отвергнут"],
+["h","1945 (февраль)","Ялтинская (Крымская) конференция — зоны оккупации, репарации, война с Японией через 3 месяца"],
+["h","1945 (июль–август)","Потсдамская (Берлинская) конференция — Сталин, Трумэн, Эттли; принцип «5Д»"],
+["h","1941","Н. Гастелло — «огненный таран»; В. Талалихин — ночной таран"],
+["h","1943","А. Матросов закрыл пулемёт телом; А. Маресьев вернулся в бой на протезах"],
+["h","1943, 1943, 1944","А. Покрышкин — трижды Герой (первый)"],
+["h","1944, 1944, 1945","И. Кожедуб — трижды Герой"],
+["h","1942 / 1946","Власов: 1942 — сдался в плен, 1946 — казнён"],
+["h","1947","Казнён П. Краснов"],
+["h","1945 / 1946","Д. Карбышев погиб в плену (1945), Герой посмертно (1946)"]
+];
+// таблица по годам: k, годы, событие, длительность, как запомнить
+const T=[
+["0","1939–1945","Вторая мировая война","6 лет","Началась в Польше, кончилась в Японии"],
+["0","1941–1945","Великая Отечественная война","~4 года (1418 дней)","41 → 45, четыре года"],
+["0","1941–1942","1-й период: начальный","~1,5 года","Отступаем до Сталинграда"],
+["0","1942–1943","2-й период: коренной перелом","~1 год","Сталинград → Курск → Днепр"],
+["0","1944–1945","3-й период: освобождение СССР и Европы","~1,5 года","Гоним врага до Берлина"],
+["0","1939","Исключение СССР из Лиги Наций","1 день","Из-за войны с Финляндией"],
+
+["41","1941","Ставка, Совет по эвакуации, ГКО","1 день каждое","Первые дни войны — создают органы управления"],
+["41","1941","Оборона Брестской крепости","~1 месяц","Первая на границе"],
+["41","1941","Захват Минска","1 день","Через неделю после начала войны"],
+["41","1941","Смоленское сражение","2 месяца","Смоленск — «ворота Москвы»"],
+["41","1941","Первый залп «Катюш» (Орша)","1 день","Флёров"],
+["41","1941","Приказ № 270","1 день","270 — о сдаче в плен"],
+["41","1941","Бои у Ельни","~1 неделя","Жуков, первая победа"],
+["41","1941","Оборона Киева","~2,5 месяца","Кирпонос погиб"],
+["41","1941","Оборона Одессы","~2 месяца","Держалась, пока падал Киев"],
+["41","1941–1944","Блокада Ленинграда","872 дня","Самая длинная; 41 → 44"],
+["41","1941–1942","Оборона Севастополя","250 дней","Круглое число — 250"],
+["41","1941–1942","Битва за Москву («Тайфун»)","~7 месяцев","Осенью «Тайфун», зимой наш удар"],
+["41","1941","Эвакуация столицы в Куйбышев","—","Октябрь, самый страшный месяц"],
+["41","1941","Парад на Красной площади","1 день","С парада сразу на фронт"],
+["41","1941","Бой у Дубосеково","1 день","Панфиловцы: «Отступать некуда — позади Москва»"],
+["41","1941","Контрнаступление под Москвой","—","Начало декабря"],
+["41","1941","Пёрл-Харбор","1 день","Через 2 дня после нашего контрнаступления"],
+
+["42","1942–1943","Ржевская битва","~15 месяцев","«Ржевская мясорубка»"],
+["42","1942","Харьковский котёл","~3 недели","Май 42-го — поражение"],
+["42","1942","Центральный штаб партизанского движения","1 день","Пономаренко"],
+["42","1942","Приказ № 227 «Ни шагу назад»","1 день","227 — штрафбаты и заградотряды"],
+["42","1942–1943","Сталинградская битва","~200 дней","Летом пришли — зимой сдались"],
+["42","1942–1943","Битва за Кавказ","~15 месяцев","Началась вместе со Сталинградом"],
+["42","1942","Операция «Уран»","—","Начало коренного перелома"],
+["42","1943","Операция «Кольцо»","~3 недели","«Кольцо» замкнули — Паулюс сдался"],
+["42","1942–1943","«Молодая гвардия»","~1 год","Краснодон, Олег Кошевой"],
+
+["43","1943","Операция «Искра»","~2 недели","Искра — первый прорыв блокады"],
+["43","1943","Курская битва («Цитадель»)","~50 дней","Лето 43-го — середина войны"],
+["43","1943","Прохоровка","1 день","Крупнейший танковый бой"],
+["43","1943","«Кутузов» (Орёл)","~1,5 месяца","Полководцы 1812 года — летнее наступление"],
+["43","1943","«Румянцев» (Белгород–Харьков)","~3 недели","Румянцев — полководец Екатерины"],
+["43","1943","Освобождение Орла и Белгорода","1 день","Первый салют"],
+["43","1943","«Суворов» (Смоленск)","~2 месяца","Суворов — третий полководец"],
+["43","1943","«Рельсовая война»","~1 месяц","Партизаны рвут рельсы"],
+["43","1943","«Концерт»","~1,5 месяца","Продолжение «Рельсовой войны»"],
+["43","1943","Битва за Днепр","~4 месяца","Конец 43-го — дошли до Днепра"],
+["43","1943","Освобождение Киева","1 день","Накануне 7 ноября"],
+["43","1943","Тегеранская конференция","~4 дня","Т-Я-П: первая по алфавиту и по времени"],
+
+["44","1944","10 сталинских ударов","весь год","Удары идут по месяцам: зима → осень"],
+["44","1944","Снятие блокады Ленинграда («Январский гром»)","1 день","Блокада 41 → 44"],
+["44","1943–1944","Днепровско-Карпатская (Корсунь-Шевченковская)","~4 месяца","Удар 2, начался ещё зимой 43-го"],
+["44","1944","Освобождение Севастополя","1 день","9 мая, ровно за год до Победы"],
+["44","1944","«Багратион» (Белоруссия)","~2 месяца","Багратион — герой 1812 года"],
+["44","1944","Второй фронт («Оверлорд»)","—","Союзники открыли только в 44-м"],
+["44","1944–1945","Будапештская операция","~4 месяца","На стыке годов"],
+
+["45","1945","Ялтинская конференция","~1 неделя","Т-Я-П: вторая"],
+["45","1945","Висло-Одерская, Восточно-Прусская, Венская","1–4 месяца","Польша, Кёнигсберг, Австрия"],
+["45","1945","Берлинская операция","~3 недели","Финал войны"],
+["45","1945","Встреча на Эльбе","1 день","СССР + США"],
+["45","1945","Знамя над Рейхстагом","1 день","Берест, Егоров, Кантария"],
+["45","1945","Пражская операция","~1 неделя","Последняя операция в Европе"],
+["45","1945","Капитуляция Германии","1 день","9 мая"],
+["45","1945","Парад Победы","1 день","Командовал Рокоссовский, принимал Жуков"],
+["45","1945","Устав ООН","1 день","Сразу после Парада"],
+["45","1945","Потсдамская конференция","~2 недели","Т-Я-П: третья; принцип «5Д»"],
+["45","1945","Хиросима и Нагасаки","2 дня","Начало августа"],
+["45","1945","Война с Японией (Маньчжурская операция)","~1 месяц","Самая короткая"],
+["45","1945","Капитуляция Японии","1 день","Конец Второй мировой"],
+["45","1945–1946","Нюрнбергский процесс","~1 год","Судили год"],
+
+["h","1941","Гастелло, Талалихин","—","Таран — в первый год войны"],
+["h","1943","Матросов, Маресьев","—","Год перелома"],
+["h","1943–1944","Покрышкин — трижды Герой","—","Первый трижды Герой"],
+["h","1944–1945","Кожедуб — трижды Герой","—","На год позже Покрышкина"],
+["h","1942 / 1946","Власов: плен / казнь","—","Сдался — повешен"],
+["h","1947","Краснов казнён","—","Через год после Власова"],
+["h","1945 / 1946","Карбышев: гибель / Герой посмертно","—","Не стал предателем"]
+];
+const ITEMS=D.map((r,i)=>({i,k:r[0],d:r[1],e:r[2],f:r[4]||""}));
+
+let filt=new Set(Object.keys(G));
+try{const s=JSON.parse(localStorage.getItem("vov-filt")||"null");if(Array.isArray(s)&&s.length)filt=new Set(s)}catch(e){}
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+let mode="year";try{mode=localStorage.getItem("vov-mode")||"year"}catch(e){}
+const YITEMS=T.map((r,i)=>({i,k:r[0],d:r[1],e:r[2],f:""}));
+const src=()=>mode==="year"?YITEMS:ITEMS;
+const pool=()=>src().filter(x=>filt.has(x.k));
+function renderModes(){document.querySelectorAll(".modes").forEach(m=>{m.innerHTML=`<button class="chip" aria-pressed="${mode==="year"}" data-m="year">Только год</button><button class="chip" aria-pressed="${mode==="date"}" data-m="date">Точная дата</button>`;m.querySelectorAll("button").forEach(b=>b.onclick=()=>{mode=b.dataset.m;try{localStorage.setItem("vov-mode",mode)}catch(e){}renderModes();newDeck();newQuiz()})})}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+function renderFilters(){
+  const el=document.getElementById("filters");
+  el.innerHTML=Object.entries(G).map(([k,g])=>`<button class="chip" style="--hl:var(${g.hl})" aria-pressed="${filt.has(k)}" data-k="${k}">${g.t}</button>`).join("");
+  el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k;
+    if(filt.has(k)&&filt.size>1)filt.delete(k);else filt.add(k);
+    try{localStorage.setItem("vov-filt",JSON.stringify([...filt]))}catch(e){}
+    renderFilters();renderTable();renderList();newDeck();newQuiz();
+  });
+}
+function renderTable(){
+  let h=`<div class="hint">Сначала учи эту таблицу: год, длительность, подсказка. Потом во вкладке «Тест» выбери «Только год».</div><div class="tw"><table><thead><tr><th>Годы</th><th>Событие</th><th>Длится</th><th>Как запомнить</th></tr></thead><tbody>`;
+  for(const [k,g] of Object.entries(G)){
+    if(!filt.has(k))continue;
+    h+=`<tr class="sep" style="--hl:var(${g.hl})"><td colspan="4">${g.t}</td></tr>`;
+    T.filter(r=>r[0]===k).forEach(r=>h+=`<tr style="--hl:var(${g.hl})"><td class="y"><mark>${esc(r[1])}</mark></td><td>${esc(r[2])}</td><td class="l">${esc(r[3])}</td><td class="m">${esc(r[4])}</td></tr>`);
+  }
+  document.getElementById("v-table").innerHTML=h+"</tbody></table></div>";
+}
+function renderList(){
+  const out=[`<div class="hint">Как учить за 2–3 часа: по одному году — 10 мин читаешь шпаргалку → 10 мин карточки → тест. Потом всё вместе. Красным — где в конспекте дата расходится с учебником: проверь у учителя, какую писать.</div>`];
+  for(const [k,g] of Object.entries(G)){
+    if(!filt.has(k))continue;
+    const rows=ITEMS.filter(x=>x.k===k).map(x=>`<div class="row" style="--hl:var(${g.hl})"><div class="d"><mark>${esc(x.d)}</mark></div><div class="e">${esc(x.e)}${x.f?`<span class="fix">⚠ ${esc(x.f)}</span>`:""}</div></div>`).join("");
+    out.push(`<section class="year"><div class="ytitle" style="--hl:var(${g.hl})">${g.t}</div>${rows}</section>`);
+  }
+  document.getElementById("v-list").innerHTML=out.join("");
+}
+
+// карточки
+let deck=[],shown=false,known=0,total=0;
+function newDeck(){deck=shuffle(pool());total=deck.length;known=0;shown=false;renderCard()}
+function renderCard(){
+  const box=document.getElementById("cardbox");
+  document.getElementById("cbar").style.width=(total?known/total*100:0)+"%";
+  document.getElementById("cstat").textContent=`Выучено ${known} из ${total} · осталось ${deck.length}`;
+  if(!deck.length){box.innerHTML=`<div class="done"><h2>Все карточки пройдены</h2><p>Теперь проверь себя в тесте.</p><div class="btns"><button class="btn" id="again">Перемешать заново</button></div></div>`;document.getElementById("again").onclick=newDeck;return}
+  const c=deck[0],g=G[c.k];
+  box.innerHTML=`<div class="card" tabindex="0" id="card" style="--hl:var(${g.hl})"><span class="tag">${g.t}</span><div class="q">${esc(c.e)}</div><div class="a" ${shown?"":"hidden"}>${esc(c.d)}</div>${shown&&c.f?`<div class="fix">⚠ ${esc(c.f)}</div>`:""}${shown?"":`<div class="small">Вспомни дату и нажми</div>`}</div>
+  <div class="btns"><button class="btn ok" id="yes">Знаю</button><button class="btn bad" id="no">Не знаю</button></div>`;
+  document.getElementById("card").onclick=()=>{shown=!shown;renderCard()};
+  document.getElementById("yes").onclick=()=>answer(true);
+  document.getElementById("no").onclick=()=>answer(false);
+}
+function answer(ok){
+  const c=deck.shift();
+  if(ok)known++;else deck.splice(Math.min(deck.length,3+(Math.random()*3|0)),0,c);
+  shown=false;renderCard();
+}
+
+// тест
+let qs=[],qi=0,score=0,locked=false,miss=[];
+function newQuiz(){qs=shuffle(pool());qi=0;score=0;miss=[];renderQuiz()}
+function renderQuiz(){
+  const box=document.getElementById("quizbox");
+  document.getElementById("qstat").textContent=qs.length?`Вопрос ${Math.min(qi+1,qs.length)} из ${qs.length} · верно ${score}`:"";
+  if(qi>=qs.length){
+    const pct=qs.length?Math.round(score/qs.length*100):0;
+    box.innerHTML=`<div class="done"><h2>${score} из ${qs.length} (${pct}%)</h2>${miss.length?`<p>Повтори:</p>${miss.map(m=>`<div class="row" style="--hl:var(${G[m.k].hl})"><div class="d"><mark>${esc(m.d)}</mark></div><div class="e">${esc(m.e)}</div></div>`).join("")}`:"<p>Без ошибок!</p>"}<div class="btns">${miss.length?`<button class="btn bad" id="redo">Только ошибки</button>`:""}<button class="btn" id="qagain">Новый тест</button></div></div>`;
+    document.getElementById("qagain").onclick=newQuiz;
+    const r=document.getElementById("redo");if(r)r.onclick=()=>{qs=shuffle(miss);qi=0;score=0;miss=[];renderQuiz()};
+    return;
+  }
+  const q=qs[qi],g=G[q.k];
+  const others=shuffle(src().filter(x=>x.d!==q.d&&(mode==="year"||x.k===q.k||Math.random()<.3))).map(x=>x.d);
+  const opts=shuffle([q.d,...[...new Set(others)].slice(0,3)]);
+  locked=false;
+  box.innerHTML=`<div class="card" style="--hl:var(${g.hl});cursor:default"><span class="tag">${g.t}</span><div class="q">${esc(q.e)}</div></div><div class="opts">${opts.map(o=>`<button class="opt" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(locked)return;locked=true;
+    const ok=b.dataset.o===q.d;
+    if(ok)score++;else miss.push(q);
+    box.querySelectorAll(".opt").forEach(x=>{if(x.dataset.o===q.d)x.classList.add("right")});
+    if(!ok)b.classList.add("wrong");
+    setTimeout(()=>{qi++;renderQuiz()},ok?600:1600);
+  });
+}
+
+// вкладки
+// зубрёжка за час: шаги; в каждый шаг подмешиваются прошлые; выбрать → вписать самому; каждые 5 вопросов — соотнести или хронология
+const STEPS=[
+ {t:"Каркас войны + 1941",keys:["0","41"],min:12},
+ {t:"1942",keys:["42"],min:7},
+ {t:"1943",keys:["43"],min:8},
+ {t:"Повтор: всё до 1943",keys:["0","41","42","43"],min:7,rev:true},
+ {t:"1944",keys:["44"],min:6},
+ {t:"1945",keys:["45"],min:8},
+ {t:"Люди и конференции",keys:["h"],min:5},
+ {t:"Финальный экзамен",keys:Object.keys(G),min:7,rev:true,final:true}
+];
+const ALLY=[...new Set(T.map(r=>r[1]))];
+const yrs=s=>(s.match(/\d{4}/g)||["1941"]).map(Number);
+const y0=s=>yrs(s)[0];
+let ds={step:0,phase:"learn",t0:0,done:[]};
+try{const s=JSON.parse(localStorage.getItem("vov-drill")||"null");if(s&&typeof s.step==="number")ds=Object.assign(ds,s)}catch(e){}
+const saveDs=()=>{try{localStorage.setItem("vov-drill",JSON.stringify({step:ds.step,phase:"learn",t0:ds.t0,done:ds.done}))}catch(e){}};
+let dq=[],dPool=[],dRight=0,dWrong=0,dLock=false,dMisses={},dCount=0,dTotal=1,dSp=null,dSpAt=-1;
+const rowsFor=st=>T.map((r,i)=>({i,k:r[0],d:r[1],e:r[2],l:r[3],m:r[4]})).filter(r=>st.keys.includes(r.k));
+const prevRows=()=>STEPS.slice(0,ds.step).filter(s=>!s.rev).flatMap(rowsFor);
+const leftPts=()=>dq.reduce((a,x)=>a+2-x.s,0);
+function dOpts(d){
+  const near=shuffle(ALLY.filter(y=>y!==d)).sort((a,b)=>Math.abs(y0(a)-y0(d))-Math.abs(y0(b)-y0(d))+(Math.random()-.5)*1.5);
+  return shuffle([d,...near.slice(0,3)]);
+}
+function startDrill(){
+  const st=STEPS[ds.step];
+  const cur=rowsFor(st).map(r=>({r,s:st.rev?1:0}));
+  let old=[];
+  if(!st.rev&&ds.step>0)old=shuffle(prevRows()).slice(0,6+3*ds.step).map(r=>({r,s:1,old:true}));
+  dq=shuffle(cur);
+  old.forEach((o,j)=>dq.splice(Math.min(dq.length,Math.round((j+1)*cur.length/(old.length+1))+j),0,o));
+  dPool=cur.concat(old).map(x=>x.r);
+  dTotal=leftPts()||1;dRight=0;dWrong=0;dMisses={};dCount=0;dSp=null;dSpAt=-1;
+  ds.phase="drill";if(!ds.t0)ds.t0=Date.now();saveDs();renderDrill();
+}
+function dMiss(r){dWrong++;hard[r.i]=Math.min(3,(hard[r.i]||0)+1);saveHard();(dMisses[r.i]=dMisses[r.i]||{r,n:0}).n++}
+function requeue(r){const e=dq.find(x=>x.r.i===r.i);if(e){e.s=0;return}dq.splice(Math.min(dq.length,3),0,{r,s:1})}
+function pick4(keyFn){
+  const out=[],seen=new Set();
+  for(const r of shuffle(dPool.concat(shuffle(prevRows()).slice(0,8)))){const k=keyFn(r);if(seen.has(k))continue;seen.add(k);out.push(r);if(out.length===4)break}
+  return out.length===4?out:null;
+}
+function makeSpecial(){
+  const wantOrder=(dCount/5)%2===0;
+  const mk={
+    order(){const it=pick4(r=>y0(r.d));return it&&{type:"order",items:shuffle(it),sorted:it.slice().sort((a,b)=>y0(a.d)-y0(b.d)),pos:{},got:0,err:0}},
+    match(){const it=pick4(r=>r.d);if(!it)return null;
+      // лишние: 2 года без события и 1 событие без своего года
+      const ys=it.map(r=>r.d),extraY=dOpts(ys[0]).filter(y=>!ys.includes(y)).concat(shuffle(ALLY.filter(y=>!ys.includes(y)))).filter((y,i,a)=>a.indexOf(y)===i).slice(0,2);
+      const shown=ys.concat(extraY),pool=dPool.concat(prevRows()).filter(r=>!shown.includes(r.d)&&!it.includes(r));
+      const extraE=[];
+      return {type:"match",items:shuffle(it.concat(extraE)),years:shuffle(shown),sel:null,selY:null,done:new Set(),usedY:new Set(),err:0}}
+  };
+  return (wantOrder?mk.order()||mk.match():mk.match()||mk.order());
+}
+function header(){
+  const mins=ds.t0?Math.floor((Date.now()-ds.t0)/60000):0;
+  const plan=STEPS.slice(0,ds.step+1).reduce((a,s)=>a+s.min,0);
+  const steps=STEPS.map((s,i)=>`<button class="chip" data-s="${i}" aria-pressed="${i===ds.step}" style="--hl:var(--y4${i%5+1})">${ds.done.includes(i)?"✓ ":""}${i+1}. ${s.t}</button>`).join("");
+  return `<div class="hint">⏱ Прошло <b>${mins} мин</b> из 60 · к концу шага по плану — ${plan} мин.<br>Уровни: <b>1</b> — выбери год, <b>2</b> — впиши сам. Каждые 5 вопросов — соотнести или расставить по порядку. Вопросы из прошлых шагов подмешиваются.</div><div class="filters">${steps}</div><button class="reset" id="dreset">Сбросить прогресс и таймер</button>`;
+}
+function renderDrill(){
+  if(ds.phase==="end")ds.phase="learn";
+  const box=document.getElementById("v-drill");const st=STEPS[ds.step];
+  let h=header();
+  const bind=()=>{
+    const go=document.getElementById("go");if(go)go.onclick=startDrill;
+    const rs=document.getElementById("dreset");if(rs)rs.onclick=()=>{ds={step:0,phase:"learn",t0:0,done:[]};dq=[];dSp=null;saveDs();renderDrill()};
+    box.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ds.step=+b.dataset.s;ds.phase="learn";saveDs();renderDrill()});
+  };
+  if(ds.phase==="learn"){
+    h+=`<h2 class="sh">Шаг ${ds.step+1}. ${st.t} <span class="small">~${st.min} мин</span></h2>`;
+    if(st.rev)h+=`<p>${st.final?"Всё вперемешку.":"Всё с начала войны до 1943 вперемешку."} Сразу уровень 2 — вписываешь год сам. Ошибся — вопрос вернётся с вариантами.</p>`;
+    else{
+      h+=`<p class="small">Прочитай вслух 2 раза. Закрой экран и проговори год каждого события. Потом жми кнопку.${ds.step>0?` В тренировке будут и вопросы из прошлых шагов (${Math.min(prevRows().length,6+3*ds.step)} шт.).`:""}</p><div class="tw"><table><tbody>`;
+      rowsFor(st).forEach(r=>h+=`<tr style="--hl:var(${G[r.k].hl})"><td class="y"><mark>${esc(r.d)}</mark></td><td>${esc(r.e)}<span class="note">${esc(r.l)}${r.m?" · "+esc(r.m):""}</span></td></tr>`);
+      h+=`</tbody></table></div>`;
+    }
+    h+=`<div class="btns"><button class="btn ok" id="go">${st.final?"Начать экзамен":"Начать тренировку"}</button></div>`;
+    box.innerHTML=h;bind();return;
+  }
+  // конец шага
+  if(!dq.length&&!dSp){
+    ds.done=[...new Set([...ds.done,ds.step])];
+    const hard=Object.values(dMisses).sort((a,b)=>b.n-a.n).slice(0,6);
+    h+=`<div class="done"><h2>Шаг ${ds.step+1} пройден</h2><p>Верно ${dRight}, ошибок ${dWrong}.</p>${hard.length?`<p class="small">Самые трудные — проговори вслух 3 раза:</p>${hard.map(m=>`<div class="row" style="--hl:var(${G[m.r.k].hl})"><div class="d"><mark>${esc(m.r.d)}</mark></div><div class="e">${esc(m.r.e)}<span class="note">${esc(m.r.m||"")}</span></div></div>`).join("")}`:""}<div class="btns">${ds.step<STEPS.length-1?`<button class="btn ok" id="next">Следующий шаг →</button>`:""}<button class="btn" id="rep">Ещё раз этот шаг</button></div></div>`;
+    saveDs();ds.phase="end";box.innerHTML=h;bind();
+    const n=document.getElementById("next");if(n)n.onclick=()=>{ds.step++;ds.phase="learn";saveDs();renderDrill()};
+    document.getElementById("rep").onclick=startDrill;return;
+  }
+  if(!dSp&&dCount>0&&dCount%5===0&&dSpAt!==dCount){dSpAt=dCount;dSp=makeSpecial()}
+  const prog=Math.max(0,Math.round((1-leftPts()/dTotal)*100));
+  h+=`<div class="bar"><i style="width:${prog}%"></i></div><p class="small">Шаг ${ds.step+1} · осталось ${dq.length} · верно ${dRight} · ошибок ${dWrong}</p>`;
+  if(dSp){box.innerHTML=h+renderSpecial();bind();bindSpecial();return}
+  const e=dq[0],q=e.r,g=G[q.k];
+  const tag=`${g.t}${e.old?" · из прошлого шага":""}`;
+  requestAnimationFrame(()=>{const c=box.querySelector(".card");if(c&&c.getBoundingClientRect().top<70)c.scrollIntoView({block:"start",behavior:"auto"})});
+  if(e.s===0){
+    h+=`<div class="card" style="--hl:var(${g.hl});cursor:default"><span class="tag">${tag} · уровень 1</span><div class="q">${esc(q.e)}</div><div id="fb"></div></div>
+    <div class="opts">${dOpts(q.d).map((o,i)=>`<button class="opt" data-o="${esc(o)}">${i+1}) ${esc(o)}</button>`).join("")}</div>`;
+    box.innerHTML=h;bind();dLock=false;
+    box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>dChoice(b));
+  }else{
+    const ys=yrs(q.d),multi=ys.length>1&&ys[0]!==ys[ys.length-1];
+    if(e.ask==null)e.ask=multi&&Math.random()<.5?ys.length-1:0;
+    const slash=q.d.includes("/");
+    const label=!multi?"В каком году?":slash?(e.ask===0?"Первый год?":"Второй год?"):(e.ask===0?"В каком году НАЧАЛОСЬ?":"В каком году ЗАКОНЧИЛОСЬ?");
+    h+=`<div class="card" style="--hl:var(${g.hl});cursor:default"><span class="tag">${tag} · уровень 2</span><div class="q">${esc(q.e)}</div><div class="ask">${label}</div><div id="fb"></div></div>
+    <form class="tform" id="tf"><input id="ti" class="inp" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="19__" aria-label="Год"><button class="btn ok" type="submit">Проверить</button></form>`;
+    box.innerHTML=h;bind();dLock=false;
+    const inp=document.getElementById("ti");inp.focus();
+    document.getElementById("tf").onsubmit=ev=>{ev.preventDefault();dType(inp.value)};
+  }
+}
+function showFb(q){
+  document.getElementById("fb").innerHTML=`<div class="a">${esc(q.d)}</div><div class="small">${esc(q.l||"")}${q.m?" · 💡 "+esc(q.m):""}</div><div class="btns"><button class="btn" id="cont">Понял, дальше (Enter)</button></div>`;
+  document.getElementById("cont").onclick=renderDrill;
+  const tf=document.getElementById("tf");if(tf)tf.remove();
+}
+function wrongEntry(e){dMiss(e.r);e.s=0;e.ask=null;dq.shift();dq.splice(Math.min(dq.length,2),0,e);dCount++}
+function rightEntry(e){dRight++;e.s++;dq.shift();if(e.s<2)dq.splice(Math.min(dq.length,3+(Math.random()*4|0)),0,e);dCount++}
+function dChoice(b){
+  if(dLock)return;dLock=true;const e=dq[0],q=e.r,box=document.getElementById("v-drill");
+  box.querySelectorAll(".opt").forEach(x=>{if(x.dataset.o===q.d)x.classList.add("right")});
+  if(b.dataset.o===q.d){rightEntry(e);setTimeout(renderDrill,450)}
+  else{b.classList.add("wrong");wrongEntry(e);showFb(q)}
+}
+function dType(v){
+  if(dLock)return;v=(v||"").trim();if(!v)return;dLock=true;
+  if(/^\d{2}$/.test(v))v="19"+v;
+  const e=dq[0],q=e.r,target=yrs(q.d)[e.ask||0];
+  if(+v===target){rightEntry(e);document.getElementById("fb").innerHTML=`<div class="a" style="color:var(--ok)">✓ ${esc(q.d)}</div>`;setTimeout(renderDrill,650)}
+  else{wrongEntry(e);showFb(q);document.getElementById("fb").insertAdjacentHTML("afterbegin",`<div class="small" style="color:var(--bad)">Ты написал ${esc(v)}, правильно ${target}</div>`)}
+}
+function renderSpecial(){
+  const s=dSp;let h="";
+  if(s.type==="match"){
+    h+=`<div class="card" style="cursor:default;min-height:0"><span class="tag">спецраунд</span><div class="q">Соотнеси события и годы</div><div class="small">Нажми событие и год (в любом порядке). Осторожно: 2 года лишние — им пары нет.</div>${s.err?`<div class="small" style="color:var(--bad)">Ошибок: ${s.err}</div>`:""}</div>
+    <div class="mgrid"><div class="mcol">${s.items.map((r,j)=>`<button class="mbtn ${s.done.has(j)?"okm":""} ${s.sel===j?"sel":""}" data-me="${j}" ${s.done.has(j)?"disabled":""}>${esc(r.e)}</button>`).join("")}</div>
+    <div class="mcol">${s.years.map((y,j)=>`<button class="mbtn y ${s.usedY.has(j)?"okm":""} ${s.selY===j?"sel":""}" data-my="${j}" ${s.usedY.has(j)?"disabled":""}>${esc(y)}</button>`).join("")}</div></div>`;
+    h+=`<div class="mstat">${s.sel!=null?`Выбрано: <b>${esc(s.items[s.sel].e)}</b> — теперь нажми год`:s.selY!=null?`Выбран год <b>${esc(s.years[s.selY])}</b> — теперь нажми событие`:"Ничего не выбрано"}</div>`;
+    if(s.done.size===s.items.length)h+=`<div class="btns"><button class="btn ok" id="spn">${s.err?"Готово, дальше":"Идеально! Дальше"}</button></div><div class="small">Лишние годы: ${s.years.filter(y=>!s.items.some(r=>r.d===y)).map(esc).join(", ")}</div>`;
+  }else{
+    h+=`<div class="card" style="cursor:default;min-height:0"><span class="tag">спецраунд</span><div class="q">Хронология: нажимай события от самого раннего к позднему (по году начала)</div>${s.err?`<div class="small" style="color:var(--bad)">Ошибок: ${s.err}</div>`:""}</div>
+    <div class="mcol" style="margin-top:14px">${s.items.map((r,j)=>{const p=s.pos[j];return `<button class="mbtn ${p?"okm":""}" data-or="${j}" ${p?"disabled":""}>${p?`<span class="num">${p}.</span>`:""}${esc(r.e)}${p?` — <b>${esc(r.d)}</b>`:""}</button>`}).join("")}</div>`;
+    if(s.got===4)h+=`<div class="btns"><button class="btn ok" id="spn">${s.err?"Готово, дальше":"Идеально! Дальше"}</button></div>`;
+  }
+  return h;
+}
+function flashBad(el){el.classList.add("bad");setTimeout(()=>{el.classList.remove("bad")},450)}
+function bindSpecial(){
+  const s=dSp,box=document.getElementById("v-drill");
+  const n=document.getElementById("spn");if(n)n.onclick=()=>{if(!s.err)dRight++;dSp=null;renderDrill()};
+  const tryPair=()=>{
+    if(s.sel==null||s.selY==null)return renderDrill();
+    const r=s.items[s.sel],j=s.selY,btn=box.querySelector(`[data-my="${j}"]`);
+    if(r.d===s.years[j]){s.done.add(s.sel);s.usedY.add(j);s.sel=null;s.selY=null;renderDrill()}
+    else{s.err++;dMiss(r);requeue(r);s.sel=null;s.selY=null;if(btn)flashBad(btn);setTimeout(renderDrill,450)}
+  };
+  const ex=document.getElementById("extra");if(ex)ex.onclick=()=>{
+    if(s.sel==null){flashBad(ex);return}
+    const r=s.items[s.sel];
+    if(!s.years.includes(r.d)){s.done.add(s.sel);s.sel=null;s.selY=null;renderDrill()}
+    else{s.err++;dMiss(r);requeue(r);s.sel=null;flashBad(ex);setTimeout(renderDrill,450)}
+  };
+  box.querySelectorAll("[data-me]").forEach(b=>b.onclick=()=>{s.sel=+b.dataset.me;tryPair()});
+  box.querySelectorAll("[data-my]").forEach(b=>b.onclick=()=>{s.selY=+b.dataset.my;tryPair()});
+  box.querySelectorAll("[data-or]").forEach(b=>b.onclick=()=>{
+    const j=+b.dataset.or,r=s.items[j];
+    if(y0(r.d)===y0(s.sorted[s.got].d)){s.got++;s.pos[j]=s.got;renderDrill()}
+    else{s.err++;dMiss(r);requeue(r);flashBad(b);setTimeout(renderDrill,450)}
+  });
+}
+document.addEventListener("keydown",e=>{
+  if(view!=="drill"||ds.phase!=="drill")return;
+  const c=document.getElementById("cont");
+  if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();renderDrill();return}
+  if(e.target.tagName==="INPUT")return;
+  const n=+e.key;if(n>=1&&n<=4&&!dLock){const b=document.querySelectorAll("#v-drill .opt")[n-1];if(b)dChoice(b)}
+});
+
+
+// быстрый повтор: все события за 5 минут, сначала те, где ошибался
+let hard={};try{hard=JSON.parse(localStorage.getItem("vov-hard")||"{}")||{}}catch(e){}
+const saveHard=()=>{try{localStorage.setItem("vov-hard",JSON.stringify(hard))}catch(e){}};
+let bz={on:false,q:[],t0:0,ok:0,bad:0,miss:[],lock:false,timer:0,total:0};
+const BZ_SEC=300;
+function blitzStart(){
+  const all=T.map((r,i)=>({i,k:r[0],d:r[1],e:r[2],m:r[4]}));
+  const hardFirst=shuffle(all.filter(r=>hard[r.i])).sort((a,b)=>(hard[b.i]||0)-(hard[a.i]||0));
+  bz={on:true,q:hardFirst.concat(shuffle(all.filter(r=>!hard[r.i]))),t0:Date.now(),ok:0,bad:0,miss:[],lock:false,total:all.length};
+  clearInterval(bz.timer);bz.timer=setInterval(blitzTick,250);blitzRender();
+}
+function blitzLeft(){return Math.max(0,BZ_SEC-Math.floor((Date.now()-bz.t0)/1000))}
+function blitzTick(){
+  const el=document.getElementById("bzclock");if(!bz.on)return;
+  const l=blitzLeft();if(el)el.textContent=`${Math.floor(l/60)}:${String(l%60).padStart(2,"0")}`;
+  if(l===0)blitzEnd();
+}
+function blitzEnd(){bz.on=false;clearInterval(bz.timer);blitzRender()}
+function blitzRender(){
+  const box=document.getElementById("v-blitz");
+  if(!bz.on&&!bz.t0){
+    const nh=Object.keys(hard).length;
+    box.innerHTML=`<div class="done"><h2>Повтор за 5 минут</h2><p>Все ${T.length} событий, только годы. Отвечай быстро цифрами 1–4. Сначала идут события, где ты ошибался${nh?` (таких сейчас ${nh})`:""}. Ошибка — событие вернётся в конец.</p><div class="btns"><button class="btn ok" id="bzgo">Старт ⏱ 5:00</button></div></div>`;
+    document.getElementById("bzgo").onclick=blitzStart;return;
+  }
+  if(!bz.on||!bz.q.length){
+    if(bz.on)blitzEnd();
+    const sec=Math.floor((Date.now()-bz.t0)/1000),uniq=[...new Map(bz.miss.map(r=>[r.i,r])).values()];
+    box.innerHTML=`<div class="done"><h2>${bz.q.length?"Время вышло":"Всё пройдено!"}</h2><p>Верно ${bz.ok} · ошибок ${bz.bad} · осталось ${bz.q.length} из ${bz.total} · ${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")}</p>${uniq.length?`<p class="small">Повтори глазами перед уроком:</p>${uniq.map(r=>`<div class="row" style="--hl:var(${G[r.k].hl})"><div class="d"><mark>${esc(r.d)}</mark></div><div class="e">${esc(r.e)}<span class="note">${esc(r.m||"")}</span></div></div>`).join("")}`:"<p>Без ошибок — ты готов 💪</p>"}<div class="btns"><button class="btn ok" id="bzgo">Ещё раз</button>${Object.keys(hard).length?`<button class="btn" id="bzclr">Забыть старые ошибки</button>`:""}</div></div>`;
+    document.getElementById("bzgo").onclick=blitzStart;
+    const c=document.getElementById("bzclr");if(c)c.onclick=()=>{hard={};saveHard();bz.t0=0;blitzRender()};
+    return;
+  }
+  const q=bz.q[0],g=G[q.k],l=blitzLeft();
+  const done=bz.total-bz.q.length;
+  box.innerHTML=`<div class="bzhead"><span class="bzclock" id="bzclock">${Math.floor(l/60)}:${String(l%60).padStart(2,"0")}</span><span class="small">пройдено ${done} из ${bz.total} · ошибок ${bz.bad}</span></div><div class="bar"><i style="width:${done/bz.total*100}%"></i></div>
+  <div class="card" style="--hl:var(${g.hl});cursor:default;min-height:150px;margin-top:12px"><span class="tag">${g.t}${hard[q.i]?" · была ошибка":""}</span><div class="q">${esc(q.e)}</div><div id="bzfb"></div></div>
+  <div class="opts">${dOpts(q.d).map((o,i)=>`<button class="opt" data-o="${esc(o)}">${i+1}) ${esc(o)}</button>`).join("")}</div>`;
+  bz.lock=false;
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>blitzAnswer(b));
+}
+function blitzAnswer(b){
+  if(bz.lock||!bz.on)return;bz.lock=true;const q=bz.q[0];
+  document.querySelectorAll("#v-blitz .opt").forEach(x=>{if(x.dataset.o===q.d)x.classList.add("right")});
+  bz.q.shift();
+  if(b.dataset.o===q.d){bz.ok++;if(hard[q.i]){hard[q.i]--;if(hard[q.i]<=0)delete hard[q.i];saveHard()}setTimeout(blitzRender,250)}
+  else{bz.bad++;b.classList.add("wrong");bz.miss.push(q);hard[q.i]=(hard[q.i]||0)+2;saveHard();bz.q.splice(Math.min(bz.q.length,5),0,q);
+    document.getElementById("bzfb").innerHTML=`<div class="a" style="font-size:24px">${esc(q.d)}</div>${q.m?`<div class="small">💡 ${esc(q.m)}</div>`:""}`;setTimeout(blitzRender,1300)}
+}
+document.addEventListener("keydown",e=>{
+  if(view!=="blitz"||!bz.on||e.target.tagName==="INPUT")return;
+  const n=+e.key;if(n>=1&&n<=4){const b=document.querySelectorAll("#v-blitz .opt")[n-1];if(b)blitzAnswer(b)}
+});
+
+let view="drill";
+function setView(v){
+  view=v;
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.v===v));
+  ["blitz","drill","table","list","cards","quiz"].forEach(x=>document.getElementById("v-"+x).hidden=x!==v);
+  document.getElementById("filters").hidden=v==="drill"||v==="blitz";if(v==="drill")renderDrill();if(v==="blitz")blitzRender();
+  try{localStorage.setItem("vov-view",v)}catch(e){}
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setView(t.dataset.v));
+document.addEventListener("keydown",e=>{
+  if(view!=="cards"||!deck.length)return;
+  if(e.key===" "){e.preventDefault();shown=!shown;renderCard()}
+  else if(e.key==="1")answer(true);else if(e.key==="2")answer(false);
+});
+renderModes();renderFilters();renderTable();renderList();newDeck();newQuiz();
+setView("drill");try{const v=localStorage.getItem("vov-view");if(v)setView(v)}catch(e){}
+</script>
+
+</body>
+</html>
